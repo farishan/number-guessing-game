@@ -77,16 +77,26 @@
     </script>
     <script>
         /*
+            @see https://developer.mozilla.org/en-US/docs/Games/Anatomy
+
             The goal of every video game is to present the user(s) with a situation, accept their input, interpret those signals into actions, and calculate a new situation resulting from those acts. Games are constantly looping through these stages, over and over, until some end condition occurs (such as winning, losing, or exiting to go to bed). Not surprisingly, this pattern corresponds to how a game engine is programmed.
         */
         /*
             Therefore,
+            - Every video game have this 4 Stage(s): Present, Accept, Interpret, Calculate
             - A Situation can be presented to the user
             - A Situation can accept user input
-            - Input is Signal, in interpreter's point of view
-            - Interpreter responsible to convert Signal into Action
-            - Action should produce Result?
+            - Input is Signal (or takes Signal?), in interpreter's point of view
+            - Interpreter responsible to interpret Signal into Action(s)
+            - Calculator responsible to calculate and result new Situation based on Action(s)
         */
+       /*
+            Mixing MDN persepective on Game Anatomy with JavaScript
+
+            So,
+            Stage is Event?
+            Stage is similar to Event?
+       */
         const situationPrototype = {
             present: function () {
                 const renderableElement = document.createElement('div')
