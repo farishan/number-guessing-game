@@ -10,65 +10,43 @@
 
 <body>
     <script>
-        const game = {
-            config: {
-                min: 1,
-                max: 9
-            },
-            state: {
-                canSubmit: false
-            },
+        const guiDriver = {
+            root: document.createElement('div'),
 
-            showInstruction: function (guiRoot) {
-                const self = this
+            start: function () {
+                document.body.appendChild(this.root)
+            },
+            clear: function () {
+                this.root.innerHTML = ''
+            },
+            show: function (guiElement) {
+                this.root.appendChild(guiElement)
+            },
+            createTitle: function (text) {
                 const title = document.createElement('h1')
-                title.innerHTML = 'Number Guessing Game'
-                guiRoot.appendChild(title)
-
-                const instruction = document.createElement('p')
-                instruction.innerHTML = `We have choose a number between ${self.config.min}-${self.config.max}. Let's see if you can guess it.`
-                guiRoot.appendChild(instruction)
+                title.innerHTML = text
+                return title
             },
-
-            onGuess: function (guessedNumber, guiRoot) {
-                const self = this
-                if (!self.state.canSubmit) return
-                const randomNumber = Math.floor(Math.random() * self.config.max) + self.config.min
-                const resultText = document.createElement('div')
-
-                resultText.innerHTML = `Our number: ${randomNumber}<br>
-                    Your guess: ${guessedNumber}<br>`
-
-                if (parseInt(guessedNumber) === randomNumber) {
-                    resultText.innerHTML += 'You won!<br>'
-                    resultText.style.color = 'green'
-                } else {
-                    resultText.innerHTML += 'You lost!<br>'
-                    resultText.style.color = 'red'
-                }
-
-                const restartButton = document.createElement('button')
-                restartButton.innerHTML = 'Start New Round'
-                restartButton.onclick = function () {
-                    self.startRound(guiRoot)
-                }
-                resultText.appendChild(restartButton)
-                guiRoot.appendChild(resultText)
-
-                self.state.canSubmit = false
+            createText: function (text) {
+                const textGUI = document.createElement('p')
+                textGUI.innerHTML = text
+                return textGUI
             },
-
-            showInput: function (guiRoot) {
-                const self = this
+            createButton: function (text, onclick) {
+                const button = document.createElement('button')
+                button.innerHTML = text
+                button.onclick = onclick
+                return button
+            },
+            createInput: function (label, onsubmit) {
                 const inputContainer = document.createElement('div')
-                inputContainer.innerHTML = 'Enter a guess: '
+                inputContainer.innerHTML = `${label} `
 
                 const input = document.createElement('input')
-                input.autofocus = true
-                input.placeholder = `${self.config.min} - ${self.config.max}`
+                input.placeholder = `${gameStorage.config.min} - ${gameStorage.config.max}`
                 input.onkeydown = function (e) {
                     if (e.key === 'Enter') {
-                        self.onGuess(parseInt(input.value), guiRoot)
+                        onsubmit(input.value)
                     }
                 }
                 inputContainer.appendChild(input)
@@ -76,30 +54,210 @@
                 const submitButton = document.createElement('button')
                 submitButton.innerHTML = 'Submit'
                 submitButton.onclick = function () {
-                    self.onGuess(parseInt(input.value), guiRoot)
+                    onsubmit(input.value)
                 }
                 inputContainer.appendChild(submitButton)
-
-                guiRoot.appendChild(inputContainer)
+                return inputContainer
             },
-
-            startRound: function (guiRoot) {
-                this.state.canSubmit = true
-                guiRoot.innerHTML = ''
-                this.showInstruction(guiRoot)
-                this.showInput(guiRoot)
-            },
-
-            start: function () {
-                const guiRoot = document.createElement('div')
-
-                this.startRound(guiRoot)
-
-                document.body.appendChild(guiRoot)
+            createContainer: function () {
+                return document.createElement('div')
             }
         }
 
-        game.start()
+        const gameStorage = {
+            title: 'Number Guessing Game',
+            config: {
+                min: 1,
+                max: 10
+            },
+            state: {
+                canSubmit: false
+            },
+        }
+    </script>
+    <script>
+        /*
+            @see https://developer.mozilla.org/en-US/docs/Games/Anatomy
+
+            The goal of every video game is to present the user(s) with a situation, accept their input, interpret those signals into actions, and calculate a new situation resulting from those acts. Games are constantly looping through these stages, over and over, until some end condition occurs (such as winning, losing, or exiting to go to bed). Not surprisingly, this pattern corresponds to how a game engine is programmed.
+        */
+        /*
+            Therefore,
+            - Every video game have this 4 Stage(s): Present, Accept, Interpret, Calculate
+            - A Situation can be presented to the user
+            - A Situation can accept user input
+            - Input is Signal (or takes Signal?), in interpreter's point of view
+            - Interpreter responsible to interpret Signal into Action(s)
+            - Calculator responsible to calculate and result new Situation based on Action(s)
+        */
+       /*
+            Mixing MDN persepective on Game Anatomy with JavaScript
+
+            So,
+            Stage is Event?
+            Stage is similar to Event?
+       */
+        const situationPrototype = {
+            present: function () {
+                const renderableElement = document.createElement('div')
+                return renderableElement
+            },
+            accept: function (inputKey, inputValue) {
+
+            }
+        }
+        const game = {
+            present: function (situation) {
+                const self = this
+
+                situation.present()
+
+                situation.accept = function (key, value) {
+                    self.accept(key, value)
+                }
+            },
+            accept: function (key, value) {
+                const signal = key
+                const payload = value
+
+                this.interpret(signal, payload)
+            },
+            interpret: function (signal, payload) {
+                let action, interpretedPayload;
+
+                if (signal === 1) {
+                    action = signal
+                    interpretedPayload = {}
+                } else {
+                    action = signal
+                    interpretedPayload = {}
+                }
+
+                this.calculate(action, interpretedPayload)
+            },
+            calculate: function (action, payload) {
+                const newSituation = Object.create(situationPrototype)
+                return newSituation
+            }
+        }
+    </script>
+    <script>
+        const specificGame = Object.create(game)
+        const SIGNAL_MAP = {
+            START: 'START',
+            CHECK: 'CHECK'
+        }
+        const specificInterpreter = {
+            START: function (input) {
+                let output = null;
+
+                return output
+            },
+            CHECK: function (input) {
+                let output = null
+
+                if (!gameStorage.state.canSubmit) return
+
+                const self = this
+                const guessedNumber = input
+
+                const randomNumber = getRandomNumber()
+                const isWin = parseInt(guessedNumber) === randomNumber
+
+                output = { randomNumber, guessedNumber, isWin }
+
+                return output
+            }
+        }
+        const specificCalculator = {
+            START: function (payload, specificGame) {
+                return {
+                    present: function () {
+                        gameStorage.state.canSubmit = true
+
+                        const element = guiDriver.createContainer()
+
+                        element.appendChild(guiDriver.createTitle(gameStorage.title))
+                        element.appendChild(guiDriver.createText(`We have choose a number between ${gameStorage.config.min}-${gameStorage.config.max}. Let's see if you can guess it.`))
+
+                        const input = guiDriver.createInput(
+                            'Enter a guess: ',
+                            function (value) {
+                                specificGame.accept(SIGNAL_MAP.CHECK, parseInt(value))
+                            }
+                        )
+
+                        element.appendChild(input)
+
+                        return element
+                    }
+                }
+            },
+            CHECK: function (payload, specificGame) {
+                const { randomNumber, guessedNumber, isWin } = payload
+
+                return {
+                    present: function () {
+                        const element = guiDriver.createContainer()
+                        const resultText = guiDriver.createText(`Our number: ${randomNumber}<br>
+                        Your guess: ${guessedNumber}<br>${isWin ? 'You won!' : 'You lost!'}<br>`)
+
+                        if (isWin) {
+                            resultText.style.color = 'green'
+                        } else {
+                            resultText.style.color = 'red'
+                        }
+
+                        const restartButton = guiDriver.createButton(
+                            'Start New Round',
+                            function () { specificGame.accept(SIGNAL_MAP.START) }
+                        )
+                        resultText.appendChild(restartButton)
+                        element.appendChild(resultText)
+
+                        gameStorage.state.canSubmit = false
+
+                        return element
+                    }
+                }
+            }
+        }
+        specificGame.present = function (situation) {
+            const self = this
+
+            guiDriver.clear()
+            guiDriver.show(situation.present())
+
+            situation.accept = function (key, value) {
+                self.accept(key, value)
+            }
+        }
+        specificGame.accept = function (signal, payload) {
+            const situation = this.interpret(signal, payload)
+            this.present(situation)
+        }
+        specificGame.interpret = function (signal, payload) {
+            const action = signal
+            const interpretedPayload = specificInterpreter[signal](payload);
+
+            return this.calculate(action, interpretedPayload)
+        }
+        specificGame.calculate = function (action, payload) {
+            const self = this
+            let situation = Object.create(situationPrototype);
+            situation = specificCalculator[action](payload, self)
+
+            return situation
+        }
+        // helpers
+        function getRandomNumber() {
+            return Math.floor(Math.random() * gameStorage.config.max) + gameStorage.config.min
+        }
+    </script>
+    <script>
+        guiDriver.start()
+        const situation = specificGame.calculate(SIGNAL_MAP.START)
+        specificGame.present(situation)
     </script>
 </body>
 
